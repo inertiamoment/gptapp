@@ -1,9 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [],
+  content: ['./src/**/*.{vue,js}'],
   theme: {
     extend: {},
   },
-  plugins: [],
-}
-
+  // eslint-disable-next-line global-require
+  plugins: [require('daisyui')],
+};

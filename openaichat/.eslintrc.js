@@ -4,7 +4,6 @@ module.exports = {
     node: true,
   },
   parserOptions: {
-    "requireConfigFile": false,
     "ecmaVersion": 2018,
   },
   extends: [
