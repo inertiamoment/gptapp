@@ -1,62 +1,52 @@
+// index.js
 const functions = require("firebase-functions");
-const axios = require("axios");
-const express = require("express");
-const cors = require("cors");
+const openai = require("openai");
+const cors = require('cors');
+const corsHandler = cors({ origin: true });
 
-const app = express();
-app.use(cors({ origin: true }));
+exports.addMessage = functions.https.onRequest((request, response) => {
+  corsHandler(request, response, async () => { // CORSミドルウェアを適用
+    try {
+      // リクエストからテキストを取得（POSTメソッドを想定）
+      if (request.method !== "POST") {
+        throw new Error("Only POST requests are accepted");
+      }
 
-// OpenAIのAPIキーを環境設定から取得
-const openaiApiKey = functions.config().openai.key;
+      const { text } = request.body;
 
-exports.chatWithOpenAI = functions.https.onRequest
-(async (request, response) => {
-  const userMessage = request.body.message;
+      if (!text) {
+        // テキストがリクエストに含まれていない場合はエラーを返す
+        throw new Error("Text parameter is missing");
+      }
 
-  try {
-    const openaiResponse = await axios.post(
-        "https://api.openai.com/v1/engines/davinci/completions",
-        { prompt: userMessage, max_tokens: 150 },
-        {
-          headers: {
-            "Authorization": `Bearer ${openaiApiKey}`,
-            "Content-Type": "application/json",
+      const key = functions.config().openai.apikey;
+      const organization = functions.config().openai.organizationid;
+      const configuration = new openai.Configuration({
+        organization,
+        apiKey: key,
+      });
+      const ai = new openai.OpenAIApi(configuration);
+
+      // AIにチャットメッセージを送信してレスポンスを待つ
+      const completion = await ai.createChatCompletion({
+        model: "gpt-3.5-turbo", // ここで使用するモデルを変更することができます
+        messages: [
+          {
+            role: "user",
+            content: text,
           },
-        },
-    );
+        ],
+      });
 
-    const botReply = openaiResponse.data.choices[0].text.trim();
-    response.send({ message: botReply });
-  } catch (error) {
-    console.error("Error:", error);
-    response.status(500).send({ error: "Error fetching reply from OpenAI" });
-  }
+      console.log(completion.data.choices[0].message.content);
+
+      // 成功した場合はレスポンスとしてメッセージの内容を送り返す
+      response.status(200).send({
+        text: completion.data.choices[0].message.content,
+      });
+    } catch (e) {
+      console.error("Error");
+      response.status(500).send({ error: "An error." });
+    }
+  });
 });
-
-app.post("/chatEndpoint", async (req, res) => {
-  // ユーザーからのメッセージを取得
-  const userMessage = req.body.message;
-
-  try {
-    // OpenAIに問い合わせる
-    const openaiResponse = await axios.post(
-        "https://api.openai.com/v1/engines/davinci/completions",
-        { prompt: userMessage, max_tokens: 150 },
-        {
-          headers: {
-            "Authorization": `Bearer ${openaiApiKey}`,
-            "Content-Type": "application/json",
-          },
-        },
-    );
-
-    const botReply = openaiResponse.data.choices[0].text.trim();
-    res.send({ message: botReply });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send({ error: "Error fetching reply from OpenAI" });
-  }
-});
-
-// Firebase Functionsをエクスポート
-exports.chatEndpoint = functions.https.onRequest(app);

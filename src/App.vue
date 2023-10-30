@@ -1,55 +1,62 @@
-<!--App.vue-->
 <template>
-  <div class="min-h-screen bg-gray-100 flex items-center justify-center">
-    <div class="max-w-md w-full p-6 bg-white rounded-xl shadow-xl">
-      <h1 class="text-2xl font-bold mb-5 text-gray-900">OpenAI Chatbot</h1>
-      <div
-        class="chat-container border
-      border-gray-300 rounded-lg p-3 mb-3 h-64 overflow-y-auto">
-        <transition-group name="fire" tag="div">
-          <div v-for="(message, index) in messages" :key="index" class="message">
-            <div v-if="message.sender === 'user'" class="user-message text-left">
-              <div
-                class="inline-block bg-gray-200 rounded py-1 px-3
-     text-gray-700">
-                {{ message.text }}
+  <div class="min-h-screen bg-gray-100 flex flex-col justify-end items-center pb-6">
+    <!-- チャットコンテナ -->
+    <div class="w-full max-w-md">
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <!-- メッセージ表示エリア -->
+        <div class="chat-container p-3 h-96 overflow-auto">
+          <transition-group name="fade" tag="div">
+            <!-- メッセージを表示 -->
+            <div v-for="(message, index) in messages" :key="index" class="message">
+              <div v-if="message.sender === 'user'" class="user-message text-left mb-2">
+                <div class="inline-block bg-gray-200 rounded py-1 px-3 text-gray-700">
+                  {{ message.text }}
+                </div>
+              </div>
+              <div v-else class="bot-message text-right mb-2">
+                <div class="inline-block bg-blue-600 rounded py-1 px-3 text-white">
+                  {{ message.text }}
+                </div>
               </div>
             </div>
-            <div v-else class="bot-message text-right">
-              <div class="inline-block bg-blue-600 rounded py-1 px-3 text-white">
-                {{ message.text }}
-              </div>
-            </div>
-          </div>
-        </transition-group>
+          </transition-group>
+        </div>
       </div>
-      <div class="flex">
-        <input
-          type="text"
-          v-model="userInput"
-          @keyup.enter="sendToOpenAI"
-          aria-label="User Input"
-          class="flex-grow border border-gray-300 rounded-l-lg p-2"
-          placeholder="Say something"
-        />
-        <button
-          type="button"
-          @click="sendToOpenAI"
-          class="bg-blue-600 text-white py-2 px-6 rounded-r-lg">
-          送信
-        </button>
+      <!-- 入力エリア -->
+      <div class="border-t border-gray-200">
+        <div class="px-4 py-3">
+          <div class="flex">
+            <!-- 入力フィールド - 既存のコード -->
+            <input
+              type="text"
+              id="userInput"
+              v-model="userInput"
+              @keyup.enter="sendUserMessage"
+              aria-label="User Input"
+              class="flex-grow border border-gray-300 rounded-l-lg p-2"
+              placeholder="Say something"
+            >
+            <!-- 送信ボタン - 新しいコード -->
+            <button
+              type="button"
+              @click="sendUserMessage"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
+            >
+              Send
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// main.jsやVueのエントリーファイルで、axiosのデフォルト設定を追加
-import axios from 'axios';
+import {
+  getFunctions,
+  httpsCallable,
+} from '@firebase/functions';
 
-axios.defaults.baseURL = 'https://us-central1-openaichat-f4818.cloudfunctions.net'; // サーバーのベースURLを設定
-
-// リクエストヘッダーに必要なヘッダーを追加
 export default {
   data() {
     return {
@@ -58,53 +65,50 @@ export default {
     };
   },
   methods: {
-  // ...
-    async sendToOpenAI() {
-      if (!this.userInput) return;
+    async sendUserMessage() {
+    // ユーザー入力をトリムしてチェック
+      if (!this.userInput.trim()) {
+      // メッセージが空または空白の場合は何もしない
+        return;
+      }
 
-      this.messages.push({ sender: 'user', text: this.userInput });
+      const functions = getFunctions();
+      const addMessage = httpsCallable(functions, 'addMessage');
 
+      // ユーザーのメッセージを追加
+      this.messages.push({
+        sender: 'user',
+        text: this.userInput,
+      });
+
+      // サーバーにユーザーのメッセージを送信
       try {
-      // Firebase Cloud Functionのエンドポイントにリクエストを送信
-        const response = await axios.post(
-          'https://us-central1-openaichat-f4818.cloudfunctions.net/chatEndpoint',
-          { message: this.userInput },
-        );
+        const result = await addMessage({ text: this.userInput });
+        const botResponse = result.data.text; // 'text'はFirebase Functionが返すオブジェクトのキーです
 
-        // 応答からメッセージを取得
-        const reply = response.data.message;
-        this.messages.push({ sender: 'bot', text: reply });
+        // ボットの返答を追加
+        this.messages.push({
+          sender: 'bot',
+          text: botResponse,
+        });
+
+        // ユーザー入力をクリア
         this.userInput = '';
       } catch (error) {
-        console.error('Error:', error);
-
-        // エラーの詳細をログに出力
-        if (error.response) {
-        // サーバーからのレスポンスがある場合、ステータスコードを確認
-          console.error('Response status code:', error.response.status);
-          console.error('Response data:', error.response.data);
-        } else if (error.request) {
-        // リクエストは送信されたが、レスポンスは受信されなかった
-          console.error('Request data:', error.request);
-        } else {
-        // その他のエラー
-          console.error('Error message:', error.message);
-        }
-
-        this.messages.push({ sender: 'bot', text: 'Error getting reply.' });
+        console.error(error);
       }
     },
   },
-
 };
 </script>
 
 <style>
 .chat-container {
   max-height: 15rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  /* display: flex; この行を削除します。 */
+  /* flex-direction: column; この行を削除します。 */
+  gap: 0.5rem; /* このスタイルは、'display: flex;' が削除された後に機能します。 */
+  overflow-y: auto; /* 追加: メッセージが多い場合にスクロールを可能にします。 */
 }
 
 .message:last-child {
@@ -123,7 +127,9 @@ export default {
 .fade-leave-active {
   transition: opacity 0.5s ease;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter, .fade-leave-to /* 'fade-leave-to' は 'fade-leave' から変更されました。 */ {
   opacity: 0;
 }
 </style>
+
+<!-- トランジショングループのnameプロパティを 'slide-fade' から 'fade' に修正します。 -->
