@@ -1,0 +1,50 @@
+{
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ],
+  "hosting": {
+    "site": "openaichat-f4818",
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "headers": [
+      {
+        "source": "https://us-central1-openaichat-f4818.cloudfunctions.net/stripe_webhook",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "http://localhost:8080/ "
+          }
+        ]
+      }
+    ],
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true,
+      "port": 5001
+    },
+    "singleProjectMode": true
+  }
+}
