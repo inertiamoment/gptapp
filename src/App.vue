@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div id="app">
     <div class="min-h-screen bg-gray-100 flex flex-col justify-end items-center pb-6">
       <!-- チャットコンテナ -->
@@ -46,6 +47,53 @@
                 Send
               </button>
             </div>
+=======
+  <div class="min-h-screen bg-gray-100 flex flex-col justify-end items-center pb-6">
+    <!-- チャットコンテナ -->
+    <div class="w-full max-w-md">
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <!-- メッセージ表示エリア -->
+        <div class="chat-container p-3 h-96 overflow-auto">
+          <transition-group name="fade" tag="div">
+            <!-- メッセージを表示 -->
+            <div v-for="(message, index) in messages" :key="index" class="message">
+              <div v-if="message.sender === 'user'" class="user-message text-left mb-2">
+                <div class="inline-block bg-gray-200 rounded py-1 px-3 text-gray-700">
+                  {{ message.text }}
+                </div>
+              </div>
+              <div v-else class="bot-message text-right mb-2">
+                <div class="inline-block bg-blue-600 rounded py-1 px-3 text-white">
+                  {{ message.text }}
+                </div>
+              </div>
+            </div>
+          </transition-group>
+        </div>
+      </div>
+      <!-- 入力エリア -->
+      <div class="border-t border-gray-200">
+        <div class="px-4 py-3">
+          <div class="flex">
+            <!-- 入力フィールド - 既存のコード -->
+            <input
+              type="text"
+              id="userInput"
+              v-model="userInput"
+              @keyup.enter="sendUserMessage"
+              aria-label="User Input"
+              class="flex-grow border border-gray-300 rounded-l-lg p-2"
+              placeholder="Say something"
+            >
+            <!-- 送信ボタン - 新しいコード -->
+            <button
+              type="button"
+              @click="sendUserMessage"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
+            >
+              Send
+            </button>
+>>>>>>> origin/main
           </div>
         </div>
       </div>
@@ -54,8 +102,15 @@
 </template>
 
 <script>
+<<<<<<< HEAD
 import firebase from 'firebase/app';
 import 'firebase/functions';
+=======
+import {
+  getFunctions,
+  httpsCallable,
+} from '@firebase/functions';
+>>>>>>> origin/main
 
 export default {
   data() {
@@ -66,6 +121,7 @@ export default {
   },
   methods: {
     async sendUserMessage() {
+<<<<<<< HEAD
       console.log(this.app);
       // ユーザー入力をトリムしてチェック
       if (!this.userInput.trim()) {
@@ -75,6 +131,16 @@ export default {
 
       const functions = firebase.app().functions('asia-northeast1');
       const addMessage = functions.httpsCallable('addMessage');
+=======
+    // ユーザー入力をトリムしてチェック
+      if (!this.userInput.trim()) {
+      // メッセージが空または空白の場合は何もしない
+        return;
+      }
+
+      const functions = getFunctions();
+      const addMessage = httpsCallable(functions, 'addMessage');
+>>>>>>> origin/main
 
       // ユーザーのメッセージを追加
       this.messages.push({
@@ -101,7 +167,10 @@ export default {
     },
   },
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 </script>
 
 <style>

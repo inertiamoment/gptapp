@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Vue from 'vue';
 import { initializeApp } from 'firebase/app';
 import App from './App.vue';
@@ -15,7 +16,23 @@ const firebaseConfig = {
 };
 
 initializeApp(firebaseConfig);
+=======
+// main.js
+import { initializeApp } from 'firebase/app';
+import Vue from 'vue';
+import App from './App.vue';
+import './app.css';
+
+const firebaseConfig = {
+};
+Vue.config.productionTip = false;
+>>>>>>> origin/main
 
 new Vue({
   render: (h) => h(App),
 }).$mount('#app');
+<<<<<<< HEAD
+=======
+
+initializeApp(firebaseConfig);
+>>>>>>> origin/main

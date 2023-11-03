@@ -2,15 +2,32 @@
   "functions": [
     {
       "source": "functions",
+<<<<<<< HEAD
       "codebase": "default",
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint"
+=======
+      "codebase": "default"
+    },
+    {
+      "source": "openaichat",
+      "codebase": "openaichat",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+>>>>>>> origin/main
       ]
     }
   ],
   "hosting": {
+<<<<<<< HEAD
     "site": "openaichat-f4818",
     "public": "public",
+=======
+    "public": "dist",
+>>>>>>> origin/main
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -37,6 +54,7 @@
           }
         ]
       }
+<<<<<<< HEAD
     ],
     "hosting": {
       "port": 5000
@@ -48,3 +66,8 @@
     "singleProjectMode": true
   }
 }
+=======
+    ]
+  }
+}
+>>>>>>> origin/main
