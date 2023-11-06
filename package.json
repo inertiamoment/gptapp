@@ -2,17 +2,11 @@
   "name": "zundagpt",
   "version": "0.1.0",
   "private": true,
-<<<<<<< HEAD
   "main": "index.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-=======
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
     "main": "index.js",
->>>>>>> origin/main
     "lint": "vue-cli-service lint",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md.vue}\""
   },
@@ -21,15 +15,17 @@
     "axios": "^1.5.1",
     "core-js": "^3.8.3",
     "cors": "^2.8.5",
+    "crypto-browserify": "^3.12.0",
     "daisyui": "^3.9.3",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-<<<<<<< HEAD
     "firebase": "^10.5.2",
-=======
-    "firebase": "^10.5.0",
->>>>>>> origin/main
     "firebase-functions": "^4.4.1",
     "openai": "^4.14.1",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
     "vue": "^2.6.14"
   },
   "devDependencies": {
